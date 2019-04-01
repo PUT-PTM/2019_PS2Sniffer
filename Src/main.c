@@ -51,6 +51,8 @@
 int liczba_sygnalow_zegara = 0;
 int odebrane_bity[8];
 int odebrany_znak = 0;
+char klawiatura[] = "XXXXXXXXXXXXT~XXASXXXq1XXXzsaw2XXcxde43XX vftr5XXnbhgy6XXXmju78XX,kio09XX./l;p-XXX'X[=XXPSE]X\XXXXXXXXBXXXXLXXXXXXDXRUVXX+X-*XXXX";
+char penis = '0';
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,6 +61,7 @@ static void MX_GPIO_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if(liczba_sygnalow_zegara != 0 && liczba_sygnalow_zegara < 9) {
 		if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET) {
@@ -67,6 +70,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			odebrane_bity[liczba_sygnalow_zegara] = 0;
 	} else if(liczba_sygnalow_zegara == 9) {
 		odebrany_znak = BityNaZnak(odebrane_bity);
+		//tutaj
+		penis = klawiatura[odebrany_znak];
+		LCD1602_PrintInt(odebrany_znak);
+		LCD1602_PrintInt(penis);
+		LCD1602_print("~");
+
 		liczba_sygnalow_zegara = -2;
 	}
 	liczba_sygnalow_zegara += 1;
