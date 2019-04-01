@@ -49,6 +49,11 @@
 
 /* Private define ------------------------------------------------------------*/
 
+#define Clock_Pin GPIO_PIN_6
+#define Clock_GPIO_Port GPIOE
+#define Clock_EXTI_IRQn EXTI9_5_IRQn
+#define Dane_Pin GPIO_PIN_13
+#define Dane_GPIO_Port GPIOC
 #define D0_Pin GPIO_PIN_12
 #define D0_GPIO_Port GPIOB
 #define D1_Pin GPIO_PIN_13

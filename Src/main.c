@@ -48,7 +48,9 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+int liczba_sygnalow_zegara = 0;
+int odebrane_bity[8];
+int odebrany_znak = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,7 +59,27 @@ static void MX_GPIO_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if(liczba_sygnalow_zegara != 0 && liczba_sygnalow_zegara < 9) {
+		if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET) {
+			odebrane_bity[liczba_sygnalow_zegara] = 1;
+		} else
+			odebrane_bity[liczba_sygnalow_zegara] = 0;
+	} else if(liczba_sygnalow_zegara == 9) {
+		odebrany_znak = BityNaZnak(odebrane_bity);
+		liczba_sygnalow_zegara = -2;
+	}
+	liczba_sygnalow_zegara += 1;
+}
+int BityNaZnak(int bity[]) {
+	int podstawa = 1, wynik = 0;
+	for(int i = 0; i < 8; i++) {
+		if(bity[i] == 1)
+			wynik += podstawa;
+		podstawa = podstawa * 2;
+	}
+	return wynik/2;
+}
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -110,14 +132,7 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
-	  LCD1602_PrintInt(i);
-	  	  i=i+1;
-	  	  if(i==10)
-	  	  {
-	  		  LCD1602_setCursor(1,1);
-	  		  i=1;
-	  	  }
-	  	  HAL_Delay(500);
+
   /* USER CODE BEGIN 3 */
 
   }
@@ -195,10 +210,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, D0_Pin|D1_Pin|D2_Pin|D3_Pin, GPIO_PIN_RESET);
@@ -208,6 +224,18 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, RS_Pin|E_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : Clock_Pin */
+  GPIO_InitStruct.Pin = Clock_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Clock_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Dane_Pin */
+  GPIO_InitStruct.Pin = Dane_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Dane_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : D0_Pin D1_Pin D2_Pin D3_Pin */
   GPIO_InitStruct.Pin = D0_Pin|D1_Pin|D2_Pin|D3_Pin;
@@ -229,6 +257,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
