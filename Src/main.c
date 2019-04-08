@@ -51,8 +51,9 @@
 int liczba_sygnalow_zegara = 0;
 int odebrane_bity[8];
 int odebrany_znak = 0;
-uint8_t klawiatura[] = "XXXXXXXXXXXXT~XXASXXXq1XXXzsaw2XXcxde43XX vftr5XXnbhgy6XXXmju78XX,kio09XX./l;p-XXX'X[=XXPSE]X\\XXXXXXXXBXXXXLXXXXXXDXRUVXX+X-*XXXX";
-uint8_t symbol = '0';
+const char * klawiatura = "XXXXXXXXXXXXXT~XXASXXq1XXXzsaw2XXcxde43XX vftr5XXnbhgy6XXXmju78XX,kio09XX./l;p-XXX'X[=XXPSE]X\\XXXXXXXXBXXXXLXXXXXXDXRUEXX+X-*XXXX\0";
+char symbol = '0';
+char x[] = {'a', 'b', 0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,7 +73,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		odebrany_znak = BityNaZnak(odebrane_bity);
 		//tutaj
 		symbol = klawiatura[odebrany_znak];
-		LCD1602_PrintInt(symbol);
+		char data[2] = {symbol, 0};
+		//LCD1602_PrintInt(symbol);
+		//LCD1602_print(symbol);
+		LCD1602_print(data);
 
 		liczba_sygnalow_zegara = -2;
 	}
