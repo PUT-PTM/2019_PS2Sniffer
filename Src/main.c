@@ -53,7 +53,8 @@ int odebrane_bity[8];
 int odebrany_znak = 0;
 const char * klawiatura = "XXXXXXXXXXXXXT~XXASXXq1XXXzsaw2XXcxde43XX vftr5XXnbhgy6XXXmju78XX,kio09XX./l;p-XXX'X[=XXPSE]X\\XXXXXXXXBXXXXLXXXXXXDXRUEXX+X-*XXXX\0";
 char symbol = '0';
-char x[] = {'a', 'b', 0};
+int shift=0;
+_Bool cursor=true;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -71,13 +72,49 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			odebrane_bity[liczba_sygnalow_zegara] = 0;
 	} else if(liczba_sygnalow_zegara == 9) {
 		odebrany_znak = BityNaZnak(odebrane_bity);
-		//tutaj
 		symbol = klawiatura[odebrany_znak];
 		char data[2] = {symbol, 0};
-		//LCD1602_PrintInt(symbol);
-		//LCD1602_print(symbol);
-		LCD1602_print(data);
-
+		if(shift==1 && symbol!='S'){
+			data[0]-=32;
+		}
+		else
+			if(shift==1 && symbol=='S'){
+				shift=0;
+			}
+			else
+				if (symbol=='S' && shift==0) {
+					shift=1;
+				}
+		switch (symbol){
+			case 'E' : LCD1602_clear();//trzeba rozdzielic enter od esc
+				break;
+			case 'U' : LCD1602_1stLine();
+				break;
+			case 'D' : LCD1602_2ndLine();
+				break;
+			case 'L' : LCD1602_shiftToLeft(1); //L,B,R przetestowac musze jeszcze
+				break;
+			case 'R' : LCD1602_shiftToRight(1);
+				break;
+			case 'B' : LCD1602_shiftToLeft(1);
+				break;
+			case 'T' : if(cursor==true){
+							LCD1602_noCursor();
+							cursor=false;
+						}
+						else{
+							LCD1602_cursor();
+							cursor=true;
+						}
+				break;
+			case 'A' : //jeszcze nie wiem co bedzie robic
+				break;
+			case 'X' :
+				break;
+			case 'S' :
+				break;
+			default :	LCD1602_print(data);
+		}
 		liczba_sygnalow_zegara = -2;
 	}
 	liczba_sygnalow_zegara += 1;
@@ -128,13 +165,12 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   LCD1602_Begin4BIT(RS_GPIO_Port,RS_Pin,E_Pin,D4_GPIO_Port,D4_Pin,D5_Pin,D6_Pin,D7_Pin);
-    LCD1602_print("Patryk");
-      LCD1602_2ndLine();
-      LCD1602_print("Baryla");
-      HAL_Delay(1000);
-      LCD1602_clear();
-      LCD1602_1stLine();
-    uint8_t i =1;
+  LCD1602_print("Patryk");
+  LCD1602_2ndLine();
+  LCD1602_print("Baryla");
+  HAL_Delay(1000);
+  LCD1602_clear();
+  LCD1602_1stLine();
   /* USER CODE END 2 */
 
   /* Infinite loop */
