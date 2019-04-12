@@ -54,6 +54,7 @@ int odebrany_znak = 0;
 const char * klawiatura = "XXXXXXXXXXXXXT~XXASXXq1XXXzsaw2XXcxde43XX vftr5XXnbhgy6XXXmju78XX,kio09XX./l;p-XXX'X[=XXPSE]X\\XXXXXXXXBXXXXLXXXXXXDXRUEXX+X-*XXXX\0";
 char symbol = '0';
 int shift=0;
+int row=1,col=1;
 _Bool cursor=true;
 /* USER CODE END PV */
 
@@ -74,6 +75,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		odebrany_znak = BityNaZnak(odebrane_bity);
 		symbol = klawiatura[odebrany_znak];
 		char data[2] = {symbol, 0};
+		if(symbol!='S'){
+			naPrawo();
+		}
 		if(shift==1 && symbol!='S'){
 			data[0]-=32;
 		}
@@ -92,11 +96,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				break;
 			case 'D' : LCD1602_2ndLine();
 				break;
-			case 'L' : LCD1602_shiftToLeft(1); //L,B,R przetestowac musze jeszcze
+			case 'L' : 	naLewo();
+						LCD1602_setCursor(row,col);
 				break;
-			case 'R' : LCD1602_shiftToRight(1);
+			case 'R' : 	naPrawo();
+						LCD1602_setCursor(row,col);
 				break;
-			case 'B' : LCD1602_shiftToLeft(1);
+			case 'B' :	naLewo();
+						LCD1602_setCursor(row,col);
+						LCD1602_print(" ");
+						naLewo();
+						LCD1602_setCursor(row,col);
 				break;
 			case 'T' : if(cursor==true){
 							LCD1602_noCursor();
@@ -119,6 +129,30 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 	liczba_sygnalow_zegara += 1;
 }
+void naPrawo(){
+	col=col+1;
+	if(col==21&&row==1)	{
+		col=1;
+		row=2;
+	}
+	else	if(col==21&&row==2){
+		col=1;
+		row=1;
+	}
+}
+
+void naLewo(){
+	col=col-1;
+	if(col==0&&row==1)	{
+		col=20;
+		row=2;
+	}
+	else	if(col==0&&row==2){
+		col=20;
+		row=1;
+	}
+}
+
 int BityNaZnak(int bity[]) {
 	int podstawa = 1, wynik = 0;
 	for(int i = 0; i < 8; i++) {
@@ -164,8 +198,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
+  //sekwencja testowa przy odpalaniu
   LCD1602_Begin4BIT(RS_GPIO_Port,RS_Pin,E_Pin,D4_GPIO_Port,D4_Pin,D5_Pin,D6_Pin,D7_Pin);
-  LCD1602_print("Patryk");
+  LCD1602_print("qwertyuiopasdfgh");
   LCD1602_2ndLine();
   LCD1602_print("Baryla");
   HAL_Delay(1000);
