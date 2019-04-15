@@ -68,11 +68,10 @@ static void MX_GPIO_Init(void);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if(liczba_sygnalow_zegara != 0 && liczba_sygnalow_zegara < 9) {
 		if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET) {
-			odebrane_bity[liczba_sygnalow_zegara] = 1;
+			odebrany_znak += 1 << 1;
 		} else
-			odebrane_bity[liczba_sygnalow_zegara] = 0;
+			odebrany_znak <<= 1;
 	} else if(liczba_sygnalow_zegara == 9) {
-		odebrany_znak = BityNaZnak(odebrane_bity);
 		symbol = klawiatura[odebrany_znak];
 		char data[2] = {symbol, 0};
 		if(symbol!='S'){
@@ -153,15 +152,7 @@ void naLewo(){
 	}
 }
 
-int BityNaZnak(int bity[]) {
-	int podstawa = 1, wynik = 0;
-	for(int i = 0; i < 8; i++) {
-		if(bity[i] == 1)
-			wynik += podstawa;
-		podstawa = podstawa * 2;
-	}
-	return wynik/2;
-}
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
