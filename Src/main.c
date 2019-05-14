@@ -52,10 +52,13 @@ int liczba_sygnalow_zegara = 0;
 int odebrane_bity[8];
 int odebrany_znak = 0;
 const char * klawiatura = "XXXXXXXXXXXXXT~XXASXXq1XXXzsaw2XXcxde43XX vftr5XXnbhgy6XXXmju78XX,kio09XX./l;p-XXX'X[=XXPSE]X\\XXXXXXXXBXXXXLXXXXXXDXRUEXX+X-*XXXX\0";
+const char * alternatywa = "~!@#$%^&*()-+{}|:\"<>?";
 char symbol = '0';
 int shift=0;
 int row=1,col=1;
-_Bool cursor=true;
+char data2[2] = {};
+_Bool cursor=true, blink=true;
+int repeater=0, guard = 0, guard2 = 0, guard3 = 0, guard4 = 0, guard5 = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,32 +71,108 @@ static void MX_GPIO_Init(void);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if(liczba_sygnalow_zegara != 0 && liczba_sygnalow_zegara < 9) {
 		if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET) {
-			odebrany_znak += 1 << 1;
+			odebrane_bity[liczba_sygnalow_zegara] = 1;
 		} else
-			odebrany_znak <<= 1;
+			odebrane_bity[liczba_sygnalow_zegara] = 0;
 	} else if(liczba_sygnalow_zegara == 9) {
+		odebrany_znak = BityNaZnak(odebrane_bity);
 		symbol = klawiatura[odebrany_znak];
 		char data[2] = {symbol, 0};
-		if(symbol!='S'){
-			naPrawo();
+
+		if(symbol!='S' && symbol !='P' && symbol != 'A' && symbol != 'T' && (symbol < 65 && symbol > 31) || (symbol < 127 && symbol > 90)) {
+			if (guard3 == 0) {
+				naPrawo();
+				guard3 =1;
+			} else guard3 =0;
 		}
-		if(shift==1 && symbol!='S'){
-			data[0]-=32;
-		}
+		if(shift==1 && symbol!='S' && symbol !='P'){
+			switch(symbol){
+			case '`':
+				data[0] = '~';
+				break;
+			case '1':
+				data[0] = '!';
+				break;
+			case '2':
+				data[0] = '@';
+				break;
+			case '3':
+				data[0] = '#';
+				break;
+			case '4':
+				data[0] = '$';
+				break;
+			case '5':
+				data[0] = '%';
+				break;
+			case '6':
+				data[0] = '^';
+				break;
+			case '7':
+				data[0] = '&';
+				break;
+			case '8':
+				data[0] = '*';
+				break;
+			case '9':
+				data[0] = '(';
+				break;
+			case '0':
+				data[0] = ')';
+				break;
+			case '-':
+				data[0] = '_';
+				break;
+			case '=':
+				data[0] = '+';
+				break;
+			case '[':
+				data[0] = '{';
+				break;
+			case ']':
+				data[0] = '}';
+				break;
+			case '\\':
+				data[0] = '|';
+				break;
+			case ';':
+				data[0] = ':';
+				break;
+			case '\'':
+				data[0] = '\"';
+				break;
+			case ',':
+				data[0] = '<';
+				break;
+			case '.':
+				data[0] = '>';
+				break;
+			case '/':
+				data[0] = '?';
+				break;
+			default: data[0]-=32;
+		}}
 		else
 			if(shift==1 && symbol=='S'){
-				shift=0;
+				shift = 0;
 			}
 			else
-				if (symbol=='S' && shift==0) {
+				if (symbol=='S' && shift==0 ) {
 					shift=1;
 				}
+
 		switch (symbol){
-			case 'E' : LCD1602_clear();//trzeba rozdzielic enter od esc
+			case 'E' : LCD1602_clear2();//trzeba rozdzielic enter od esc
 				break;
-			case 'U' : LCD1602_1stLine();
+			case 'U' :
+					   LCD1602_setCursor(1, col);
+					   row = 1;
 				break;
-			case 'D' : LCD1602_2ndLine();
+			case 'P':
+			break;
+			case 'D' :
+			   LCD1602_setCursor(2, col);
+			   row = 2;
 				break;
 			case 'L' : 	naLewo();
 						LCD1602_setCursor(row,col);
@@ -101,13 +180,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			case 'R' : 	naPrawo();
 						LCD1602_setCursor(row,col);
 				break;
-			case 'B' :	naLewo();
-						LCD1602_setCursor(row,col);
-						LCD1602_print(" ");
+			case 'B' :	if (guard == 0) {
 						naLewo();
 						LCD1602_setCursor(row,col);
+						LCD1602_print(" ");
+						LCD1602_setCursor(row, col);
+						guard = guard + 1;
+			}
+			else guard = 0;
 				break;
-			case 'T' : if(cursor==true){
+			case 'T' : if(guard4 == 0) {
+				if(cursor==true){
+
 							LCD1602_noCursor();
 							cursor=false;
 						}
@@ -115,43 +199,74 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 							LCD1602_cursor();
 							cursor=true;
 						}
+				guard4 = 1;
+			} else guard4 = 0;
 				break;
-			case 'A' : //jeszcze nie wiem co bedzie robic
+			case 'A' : if(guard5 == 0) {
+				if (blink == true) {
+
+				LCD1602_noBlink();
+				blink = false;
+			} else {
+				LCD1602_blink();
+				blink = true;
+			}
+				guard5=1;
+			} else
+			guard5=0;
 				break;
 			case 'X' :
 				break;
 			case 'S' :
 				break;
-			default :	LCD1602_print(data);
+			default : if (repeater == 0) {
+						LCD1602_print(data);
+						repeater = repeater + 1;
+			} else repeater = 0;
+
 		}
+
 		liczba_sygnalow_zegara = -2;
 	}
 	liczba_sygnalow_zegara += 1;
 }
 void naPrawo(){
 	col=col+1;
-	if(col==21&&row==1)	{
+	if(col==17&&row==1)	{
 		col=1;
 		row=2;
+		LCD1602_setCursor(row, col);
 	}
-	else	if(col==21&&row==2){
+	else	if(col==17&&row==2){
 		col=1;
 		row=1;
+		LCD1602_setCursor(row, col);
 	}
 }
 
 void naLewo(){
 	col=col-1;
 	if(col==0&&row==1)	{
-		col=20;
+		col=16;
 		row=2;
+		LCD1602_setCursor(row, col);
 	}
-	else	if(col==0&&row==2){
-		col=20;
+	else if(col==0&&row==2){
+		col=16;
 		row=1;
+		LCD1602_setCursor(row, col);
 	}
 }
 
+int BityNaZnak(int bity[]) {
+	int podstawa = 1, wynik = 0;
+	for(int i = 0; i < 8; i++) {
+		if(bity[i] == 1)
+			wynik += podstawa;
+		podstawa = podstawa * 2;
+	}
+	return wynik/2;
+}
 
 /* USER CODE END PFP */
 

@@ -306,6 +306,10 @@ void LCD1602_clear(void)
 	LCD1602_writeCommand(LCD_CLEARDISPLAY);
 	HAL_Delay(3);
 }
+void LCD1602_clear2(void)
+{
+	LCD1602_writeCommand(LCD_CLEARDISPLAY);
+}
 //8) Blinking cursor
 void LCD1602_noBlink(void)
 {
