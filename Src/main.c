@@ -51,14 +51,13 @@
 int liczba_sygnalow_zegara = 0;
 int odebrane_bity[8];
 int odebrany_znak = 0;
-const char * klawiatura = "XXXXXXXXXXXXXT~XXASXXq1XXXzsaw2XXcxde43XX vftr5XXnbhgy6XXXmju78XX,kio09XX./l;p-XXX'X[=XXPSE]X\\XXXXXXXXBXXXXLXXXXXXDXRUEXX+X-*XXXX\0";
-const char * alternatywa = "~!@#$%^&*()-+{}|:\"<>?";
+const char * klawiatura = "XXXXXXXXXXXXXT~XXASXXq1XXXzsaw2XXcxde43XX vftr5XXnbhgy6XXXmju78XX,kio09XX./l;p-XXX'X[=XXPSM]X\\XXXXXXXXBXXXXLXXXXXXDXRUEXX+X-*XXXX\0";
 char symbol = '0';
-int shift=0;
+int shift=0, caps=0;
 int row=1,col=1;
 char data2[2] = {};
 _Bool cursor=true, blink=true;
-int repeater=0, guard = 0, guard2 = 0, guard3 = 0, guard4 = 0, guard5 = 0;
+int repeater=0, guard = 0, guard2 = 0, guard3 = 0, guard4 = 0, guard5 = 0, guard6 = 0, enter_guard = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,14 +78,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		symbol = klawiatura[odebrany_znak];
 		char data[2] = {symbol, 0};
 
-		if(symbol!='S' && symbol !='P' && symbol != 'A' && symbol != 'T' && (symbol < 65 && symbol > 31) || (symbol < 127 && symbol > 90)) {
+		if(symbol!='S' && symbol !='P' && symbol != 'A' && symbol != 'T' && ((symbol < 65 && symbol > 31) || (symbol < 127 && symbol > 90))) {
 			if (guard3 == 0) {
 				naPrawo();
 				guard3 =1;
 			} else guard3 =0;
 		}
-		if(shift==1 && symbol!='S' && symbol !='P'){
+		if(shift==1 && symbol!='S'){
 			switch(symbol){
+			case 'P':
+				break;
 			case '`':
 				data[0] = '~';
 				break;
@@ -150,25 +151,47 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			case '/':
 				data[0] = '?';
 				break;
-			default: data[0]-=32;
-		}}
-		else
-			if(shift==1 && symbol=='S'){
+			default: if(caps!=1  && (data[0] < 123 && data[0] > 96)) data[0]-=32;
+		}} else {
+			if(caps == 1 && symbol!='P' && symbol != 'S' && (data[0] < 123 && data[0] > 96) && shift != 1) {
+				data[0]-=32;
+			} else if(caps == 1 && symbol!='P' && symbol != 'S'  && (data[0] < 123 && data[0] > 96) && shift == 1) {
+				data[0]+=32;
+			} else
+			if(shift==1 && symbol=='S') {
 				shift = 0;
 			}
-			else
-				if (symbol=='S' && shift==0 ) {
+			else if (symbol=='S' && shift==0 ) {
 					shift=1;
 				}
-
+		}
 		switch (symbol){
-			case 'E' : LCD1602_clear2();//trzeba rozdzielic enter od esc
+			case 'E' : LCD1602_clear2();
+			row = 1;
+			col = 1;
+				break;
+			case 'M' :
+				if (enter_guard == 0) {
+				if(row == 1) {
+				row = 2; col = 1;
+				LCD1602_setCursor(row, col);}
+				else if (row == 2) {
+					row = 1; col = 1;
+					LCD1602_setCursor(row, col);
+				}
+				enter_guard = 1;
+				} else enter_guard = 0;
 				break;
 			case 'U' :
 					   LCD1602_setCursor(1, col);
 					   row = 1;
 				break;
 			case 'P':
+				if(guard6 == 0) {
+				if(caps == 1) caps = 0;
+				else caps = 1;
+				guard6 = 1;
+				} else guard6 = 0;
 			break;
 			case 'D' :
 			   LCD1602_setCursor(2, col);
