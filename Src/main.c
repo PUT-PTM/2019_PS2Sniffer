@@ -57,7 +57,7 @@ int shift=0, caps=0;
 int row=1,col=1;
 char data2[2] = {};
 _Bool cursor=true, blink=true;
-int repeater=0, guard = 0, guard2 = 0, guard3 = 0, guard4 = 0, guard5 = 0, guard6 = 0, enter_guard = 0,l_r_guard=0;
+int repeater=0, guard = 0, guard2 = 0,  guard4 = 0, guard5 = 0, guard6 = 0, enter_guard = 0,l_r_guard=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,12 +78,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		symbol = klawiatura[odebrany_znak];
 		char data[2] = {symbol, 0};
 
-		if(symbol!='S' && symbol !='P' &&symbol!='R' && symbol !='L' && symbol != 'A' && symbol != 'T' && ((symbol < 65 && symbol > 31) || (symbol < 127 && symbol > 90))) {
-			if (guard3 == 0) {
-				naPrawo();
-				guard3 =1;
-			} else guard3 =0;
-		}
+
 		if(shift==1 && symbol!='S'){
 			switch(symbol){
 			case 'P':
@@ -251,6 +246,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			default : if (repeater == 0) {
 						LCD1602_print(data);
 						repeater = repeater + 1;
+						naPrawo();
+
 			} else repeater = 0;
 
 		}
