@@ -57,7 +57,7 @@ int shift=0, caps=0;
 int row=1,col=1;
 char data2[2] = {};
 _Bool cursor=true, blink=true;
-int repeater=0, guard = 0, guard2 = 0, guard3 = 0, guard4 = 0, guard5 = 0, guard6 = 0, enter_guard = 0;
+int repeater=0, guard = 0, guard2 = 0, guard3 = 0, guard4 = 0, guard5 = 0, guard6 = 0, enter_guard = 0,l_r_guard=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,7 +78,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		symbol = klawiatura[odebrany_znak];
 		char data[2] = {symbol, 0};
 
-		if(symbol!='S' && symbol !='P' && symbol != 'A' && symbol != 'T' && ((symbol < 65 && symbol > 31) || (symbol < 127 && symbol > 90))) {
+		if(symbol!='S' && symbol !='P' &&symbol!='R' && symbol !='L' && symbol != 'A' && symbol != 'T' && ((symbol < 65 && symbol > 31) || (symbol < 127 && symbol > 90))) {
 			if (guard3 == 0) {
 				naPrawo();
 				guard3 =1;
@@ -197,16 +197,22 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			   LCD1602_setCursor(2, col);
 			   row = 2;
 				break;
-			case 'L' : 	naLewo();
-						LCD1602_setCursor(row,col);
-				break;
-			case 'R' : 	naPrawo();
-						LCD1602_setCursor(row,col);
-				break;
-			case 'B' :	if (guard == 0) {
+			case 'L' :	if(l_r_guard==0){
 						naLewo();
 						LCD1602_setCursor(row,col);
+						l_r_guard=1;
+			}
+			else l_r_guard=0;
+				break;
+			case 'R' : 	if(l_r_guard==0){
+						naPrawo();
+						LCD1602_setCursor(row,col);
+						l_r_guard=1;}
+						else l_r_guard=0;
+				break;
+			case 'B' :	if (guard == 0) {
 						LCD1602_print(" ");
+						naLewo();
 						LCD1602_setCursor(row, col);
 						guard = guard + 1;
 			}
@@ -329,9 +335,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //sekwencja testowa przy odpalaniu
   LCD1602_Begin4BIT(RS_GPIO_Port,RS_Pin,E_Pin,D4_GPIO_Port,D4_Pin,D5_Pin,D6_Pin,D7_Pin);
-  LCD1602_print("qwertyuiopasdfgh");
+  for(int i=0;i<10;i++) {LCD1602_PrintInt(i);HAL_Delay(300);}
+  for(int i=0;i<3;i++) {LCD1602_print(".");HAL_Delay(300);}
   LCD1602_2ndLine();
-  LCD1602_print("Baryla");
+  LCD1602_print("PS2 Sniffer");
   HAL_Delay(1000);
   LCD1602_clear();
   LCD1602_1stLine();
