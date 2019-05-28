@@ -6,6 +6,7 @@
   
  # 2. Description
 As the name suggests, the project is technically a sniffer to a keyboard which is using PS/2 protocol to operate. 
+
 Physical part of the project consists of previously mentioned  PS/2 keyboard (with stock connector cut off, allowing direct
 connection to microcontroller), STM32F407VGTx microcontroller and HD44780 (2-row, 16 characters, green background) display. 
 
