@@ -61,7 +61,7 @@ Instructions are as follows:
 	- ESCAPE clears whole display and sets cursor on the first place in the first row.
 	- SHIFT allows printing upper case characters and alternative printable characters from the keyboard.
 	- CAPS LOCK allows printing upper case characters.
-- Additional functionality consist:
+- Extra additional functionality includes:
 	- TAB turns off/on “_” part of the cursor.
 	- ALT turns off/on blinking part of the cursor.
 	- Arrows allow movement of the cursor on the display.
@@ -74,6 +74,8 @@ No additional steps are required to compile the project.
  # 6. Future improvements
  
  There are two small bugs : first problem is with fast writing which causes some letters might be missing  or duplicated and second problem is fast writing alternatively two characters which causes displaying only one character.
+ 
+ Except for fixing bugs, the future development may involve full support of numpad and CAPS-, NUM- and SCROLL LOCK diodes.
  
  # 7. Attributions
  
