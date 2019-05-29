@@ -11,6 +11,7 @@ Physical part of the project consists of previously mentioned  PS/2 keyboard (wi
 connection to microcontroller), STM32F407VGTx microcontroller and HD44780 (2-row, 16 characters, green background) display. 
 
 The pinout stands as follows.
+
 For connecting keyboard to microcontroller: 
 
  Wire | Pin
@@ -22,6 +23,7 @@ White wire (Data Line) | GPIOC13
 
 GPIOE6 is set up as External Interrupt (6) mode (with  falling edge trigger detection), GPIOC13 is set in input mode.
 Additionally, both GPIOE6 and GPIOC13 pins must be pulled up to 5V, minimalizing interference.
+
 For connecting display to microcontroller:
 
  Display pin | Microcontroller pin 
@@ -43,7 +45,7 @@ For connecting display to microcontroller:
 All GPIO pins are set in output mode.
 
 The software part has been written in C language, using free System Workbench for STM32 and STM32CubeMX tools.
-Main part of the project is the External Interrupt Callback procedure (**void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)**) , which is triggered after the keyboard pulls down clock line (signaling, that it is sending data). Previously mentioned procedure is responsible for translating key scan codes sent by keyboard to ASCII-encoded characters (using lookup table), interpreting them and sending necessary information to the display.  
+Main part of the project is the External Interrupt Callback procedure (**void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)**) , which is triggered after the keyboard pulls down clock line (signaling, that it is sending data). The procedure is responsible for translating key scan codes sent by keyboard to ASCII-encoded characters (using lookup table), interpreting them and sending necessary information to the display.  
 
 # 3. Tools
 
@@ -73,7 +75,7 @@ No additional steps are required to compile the project.
 
  # 6. Future improvements
  
- There are two small bugs : first problem is with fast writing which causes some letters might be missing  or duplicated and second problem is fast writing alternatively two characters which causes displaying only one character.
+ There are two small bugs present. First problem is fast writing, which may cause some letters to be missing or duplicated. Second problem appears when two keys are beeing pressed repeatedly after each other, wich causes only one of the characters to be displayed.
  
  Except for fixing bugs, the future development may involve full support of numpad and CAPS-, NUM- and SCROLL LOCK diodes.
  
