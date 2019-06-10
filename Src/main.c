@@ -206,8 +206,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 						else l_r_guard=0;
 				break;
 			case 'B' :	if (guard == 0) {
-						LCD1602_print(" ");
 						naLewo();
+						LCD1602_setCursor(row, col);
+						LCD1602_print(" ");
 						LCD1602_setCursor(row, col);
 						guard = guard + 1;
 			}
